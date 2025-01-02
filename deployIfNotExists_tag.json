@@ -1,0 +1,65 @@
+{
+  "mode": "All",
+  "policyRule": {
+    "if": {
+      "allOf": [
+        {
+          "field": "type",
+          "equals": "Microsoft.Storage/storageAccounts"
+        }
+      ]
+    },
+    "then": {
+      "effect": "deployIfNotExists",
+      "details": {
+        "evaluationDelay": "PT1M",
+        "type": "Microsoft.Storage/storageAccounts",
+        "existenceCondition": {
+          "field": "tags.Owner",
+          "exists": "true"
+        },
+        "roleDefinitionIds": [
+          "/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+        ],
+        "deployment": {
+          "properties": {
+            "mode": "incremental",
+            "template": {
+              "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+              "contentVersion": "1.0.0.0",
+              "parameters": {
+                "resourceName": {
+                  "type": "string"
+                },
+                "location": {
+                  "type": "string"
+                }
+              },
+              "resources": [
+                {
+                  "type": "Microsoft.Storage/storageAccounts",
+                  "apiVersion": "2021-04-01",
+                  "name": "[parameters('resourceName')]",
+                  "location": "[parameters('location')]",
+                  "properties": {},
+                  "tags": {
+                    "Owner": "IT"
+                  }
+                }
+              ]
+            },
+            "parameters": {
+              "resourceName": {
+                "value": "[field('name')]"
+              },
+              "location": {
+                "value": "[field('location')]"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "parameters": {}
+}
