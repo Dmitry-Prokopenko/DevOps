@@ -1,0 +1,12 @@
+#cloud-config
+package_update: true
+package_upgrade: true
+packages:
+  - nginx
+write_files:
+  - path: /var/www/html/index.html
+    content: |
+      Welcome to NGINX on VM Instance: INSTANCE_ID_PLACEHOLDER
+runcmd:
+  - sed -i "s/INSTANCE_ID_PLACEHOLDER/$(hostname)/g" /var/www/html/index.html
+  - systemctl restart nginx
