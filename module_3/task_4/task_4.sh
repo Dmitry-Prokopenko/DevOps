@@ -107,7 +107,7 @@ az vmss create \
   --lb $lb_name \
   --backend-pool-name $backend_pool_name \
   --vm-sku Standard_B1s \
-  --custom-data cloud-init.txt \
+  --custom-data $(git rev-parse --show-toplevel)/module_3/task_4/cloud-init.txt \
   --public-ip-address "" \
   --subnet $sub_name \
   --vnet-name $vnet_name
