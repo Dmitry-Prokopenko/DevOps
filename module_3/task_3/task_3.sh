@@ -117,7 +117,7 @@ az network lb create \
   --frontend-ip-name $frontend_ip_name \
   --backend-pool-name $backend_pool_name
 
-# Step 14: Create publick IPer
+# Step 14: Create publick IP
 az network public-ip create \
   --resource-group $rg_name \
   --name $public_ip_name \
