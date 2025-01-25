@@ -47,23 +47,17 @@ az role assignment create \
 
 
 # Step 6: Add Messages to the Queue (Use Azure CLI)
-az storage message put \
-  --account-name $storage_account_name \
-  --queue-name $queue_name \
-  --auth-mode login \
-  --content "Message 1: Process task 1"
+# Define an array of messages
+messages=("Message 1: Process task 1" "Message 2: Process task 2" "Message 3: Process task 3")
 
-az storage message put \
-  --account-name $storage_account_name \
-  --queue-name $queue_name \
-  --auth-mode login \
-  --content "Message 2: Process task 2"
-
-az storage message put \
-  --account-name $storage_account_name \
-  --queue-name $queue_name \
-  --auth-mode login \
-  --content "Message 3: Process task 3"
+# Loop through each message and add it to the queue
+for message in "${messages[@]}"; do
+  az storage message put \
+    --account-name $storage_account_name \
+    --queue-name $queue_name \
+    --auth-mode login \
+    --content "$message"
+done
 
 
 # Step 7: List Messages in the Queue (Check if they were added)
@@ -74,20 +68,7 @@ az storage message peek \
   --num-messages 5
 
 
-# Step 8: Dequeue and Process Messages (Using Azure CLI)
-# Dequeue the first message and process it
-message=$(az storage message get \
-  --account-name $storage_account_name \
-  --queue-name $queue_name \
-  --auth-mode login \
-  --num-messages 1 \
-  --query "[0].content" \
-  --output tsv)
-
-echo "Processing message: $message"
-
-
-# Step 9: Delete Processed Message from the Queue
+# Step 8: Delete Processed Message from the Queue
 get_message_0=$(az storage message get \
   --account-name $storage_account_name \
   --queue-name $queue_name \
@@ -106,7 +87,7 @@ az storage message delete \
   --auth-mode login
 
 
-# Step 10: Verify Message Removal from Queue
+# Step 9: Verify Message Removal from Queue
 az storage message peek \
   --account-name $storage_account_name \
   --queue-name $queue_name \
@@ -114,5 +95,5 @@ az storage message peek \
   --num-messages 5
 
 
-# Step 11: Clean Up Resources
+# Step 10: Clean Up Resources
 az group delete --name $rg_name --yes --no-wait
