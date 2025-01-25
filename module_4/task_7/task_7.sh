@@ -47,14 +47,15 @@ az role assignment create \
   --scope "${storage_account_id:1}"
 
 # Step 6: Verify Access for Authorized User
-sample_file="$(git rev-parse --show-toplevel)/sample-file.txt"
-echo "This is a secure sample file." > $sample_file
+sample_file_name="sample-file.txt"
+sample_file_path="$(git rev-parse --show-toplevel)/${sample_file_name}"
+echo "This is a secure sample file." > $sample_file_path
 
 az storage blob upload \
   --account-name $storage_account_name \
   --container-name $container_name \
-  --name $sample_file \
-  --file $sample_file \
+  --name $sample_file_name \
+  --file $sample_file_path \
   --auth-mode login
 
 # Step 7: Verify Access Denial for Unauthorized User
@@ -135,6 +136,6 @@ az storage blob list \
 exit
 
 # Step 11: Clean Up Resources 
-rm $sample_file
+rm $sample_file_path
 rm -rf ~/.ssh/${ssh_name} ~/.ssh/${ssh_name}.pub
 az group delete --name $rg_name --yes --no-wait
