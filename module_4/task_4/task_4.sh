@@ -42,7 +42,7 @@ storage_account_id=$(az storage account show \
 
 az role assignment create \
   --assignee $user \
-  --role "Storage File Data SMB Share Elevated Contributor" \
+  --role "Storage File Data Privileged Contributor" \
   --scope "${storage_account_id:1}"
 
 
