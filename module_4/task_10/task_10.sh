@@ -2,7 +2,7 @@
 module_number="module-4"
 task_number="task-10"
 location="canadacentral"
-secondary_region="canadaeast"
+secondary_region="southeastasia"
 rg_name="resource-group-${module_number}-${task_number}"
 cosmos_account_name="cosmosaccount${RANDOM}${RANDOM}"
 database_name="SampleDB"

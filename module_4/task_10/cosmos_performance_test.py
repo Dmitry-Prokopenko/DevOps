@@ -46,7 +46,7 @@ def main():
     args = parse_args()
 
     # Query to run in loop
-    query = "SELECT * FROM c WHERE c.name = 'Smartphone'"
+    query = "SELECT * FROM c ORDER BY c.timestamp DESC OFFSET 0 LIMIT 100"
 
     # Number of iterations (queries to run)
     iterations = 100
