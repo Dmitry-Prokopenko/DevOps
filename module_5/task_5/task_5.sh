@@ -12,6 +12,7 @@ nginx_namespace="nginx-namespace"
 nginx_app="nginx" 
 nginx_service="nginx-service" 
 
+
 # Step 1: Login to Azure
 az account clear
 az config set core.enable_broker_on_windows=false

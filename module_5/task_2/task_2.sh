@@ -14,13 +14,16 @@ docker_image="flask-app:latest"
 env_var_name="APP_MESSAGE"
 env_var_value="task_2"
 
+
 # Step 1: Login to Azure
 az account clear
 az config set core.enable_broker_on_windows=false
 az login
 
+
 # Step 2: Create Resource Group (if not exists)
 az group create --name $rg_name --location $location
+
 
 # Step 3: Create Azure Container Registry (Basic tier)
 az acr create \
@@ -28,6 +31,7 @@ az acr create \
   --name $acr_name \
   --sku Basic \
   --admin-enabled true
+
 
 # Step 4: Modify Flask App to Read Environment Variable and Create Dockerfile
 cat > "$(git rev-parse --show-toplevel)/app.py" << EOF
@@ -54,11 +58,13 @@ EXPOSE 80
 CMD ["python", "app.py"]
 EOF
 
+
 # Step 5: Build and Push Image to ACR
 az acr build \
   --registry $acr_name \
   --image $docker_image \
   --file $(git rev-parse --show-toplevel)/Dockerfile .
+
 
 # Step 6: Deploy Container Instance with Environment Variable
 az container create \
@@ -74,6 +80,7 @@ az container create \
   --os-type "Linux" \
   --ports 80 \
   --environment-variables $env_var_name=$env_var_value
+
 
 # Step 7: Verify Deployment
 fqdn=$(az container show \
@@ -92,6 +99,7 @@ if [[ "$response" == *"$env_var_value"* ]]; then
 else
   echo "Failed to verify environment variable."
 fi
+
 
 # Step 8: Clean Up
 rm -f "$(git rev-parse --show-toplevel)/app.py" "$(git rev-parse --show-toplevel)/Dockerfile"

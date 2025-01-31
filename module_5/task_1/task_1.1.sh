@@ -17,33 +17,40 @@ identity_name="aci-identity-${module_number}-${task_number}"
 dns_label="aci-dns-${module_number}-${task_number}-${RANDOM}"
 docker_image="flask-app:latest"
 
+
 # Step 1: Login to Azure
 az account clear
 az config set core.enable_broker_on_windows=false
 az login
 
+
 # Step 2: Create Resource Group
 az group create --name $rg_name --location $location
 
-# Step 3: Create Azure Container Registry (Basic tier) with admin disabled
+
+# Step 3: Create Azure Container Registry (Basic tier)
 az acr create \
   --resource-group $rg_name \
   --name $acr_name \
   --sku Basic \
-  --admin-enabled false
+  --admin-enabled false 
+
 
 # Step 4: Create User-Assigned Managed Identity
 az identity create \
   --resource-group $rg_name \
   --name $identity_name
 
+
 # Step 5: Assign AcrPull Role to Managed Identity
 acr_id=$(az acr show --name $acr_name --resource-group $rg_name --query id --output tsv)
 principal_id=$(az identity show --resource-group $rg_name --name $identity_name --query principalId --output tsv)
+
 az role assignment create \
   --assignee $principal_id \
   --scope "${acr_id:1}" \
   --role AcrPull
+
 
 # Step 6: Create Flask App and Dockerfile
 cat > "$(git rev-parse --show-toplevel)/app.py" << EOF
@@ -67,11 +74,13 @@ EXPOSE 80
 CMD ["python", "app.py"]
 EOF
 
+
 # Step 7: Build and Push Image to ACR
 az acr build \
   --registry $acr_name \
   --image $docker_image \
   --file $(git rev-parse --show-toplevel)/Dockerfile . 
+
 
 # Step 8: Deploy Container Instance with Managed Identity
 identity_id=$(az identity show --resource-group $rg_name --name $identity_name --query id --output tsv)
@@ -98,6 +107,7 @@ fqdn=$(az container show \
 
 echo "Application URL: http://$fqdn"
 curl -s http://$fqdn
+
 
 # Step 10: Clean Up
 rm -f "$(git rev-parse --show-toplevel)/app.py" $(git rev-parse --show-toplevel)/Dockerfile

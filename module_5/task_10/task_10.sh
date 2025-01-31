@@ -14,6 +14,7 @@ app_namespace="nginx-public"
 initial_image="nginx:1.18-alpine"
 updated_image="nginx:1.19-alpine"
 
+
 # Step 1: Login to Azure
 az account clear
 az config set core.enable_broker_on_windows=false
@@ -84,7 +85,7 @@ echo "Username: admin"
 echo "Password: $argocd_password"
 
 
-# Deploy NGINX application through ArgoCD
+# Step 7: Deploy NGINX application through ArgoCD
 cat <<EOF | kubectl apply -f -
 apiVersion: v1
 kind: Namespace
@@ -106,7 +107,7 @@ spec:
       - name: image.tag
         value: "1.18.0"
     repoURL: https://charts.bitnami.com/bitnami
-    chart: $app_name                                         # Explicit chart name (in my case the 'app_name==nginx')
+    chart: $app_name # Explicit chart name (in my case the 'app_name==nginx')
     targetRevision: 13.2.23
   project: default
   syncPolicy:
@@ -121,13 +122,13 @@ kubectl wait --namespace $app_namespace \
   --timeout=300s
 
 
-# Get initial service IP
+# Step 8: Get initial service IP
 nginx_ip=$(kubectl --namespace $app_namespace get svc $app_name --output jsonpath='{.status.loadBalancer.ingress[0].ip}')
 echo "Initial Application URL: http://$nginx_ip"
-curl -s "http://$nginx_ip"
+curl -s http://$nginx_ip
 
 
-# Perform image update
+# Step 9: Perform image update
 cat <<EOF | kubectl apply -f -
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -144,7 +145,7 @@ spec:
       - name: image.tag
         value: "1.19.0"
     repoURL: https://charts.bitnami.com/bitnami
-    chart: $app_name                                 # Explicit chart name (in my case the 'app_name==nginx')
+    chart: $app_name # Explicit chart name (in my case the 'app_name==nginx')
     targetRevision: 13.2.23
   project: default
   syncPolicy:
@@ -153,13 +154,15 @@ spec:
       selfHeal: true
 EOF
 
-# Verify update
+
+# Step 10: Verify update
 kubectl rollout status deployment/$app_name --namespace $app_namespace
 
-# Get updated service IP
+
+# Step 11: Get updated service IP
 echo "Updated Application URL: http://$nginx_ip"
-curl -s "http://$nginx_ip"
+curl -s http://$nginx_ip
 
 
-# Step 15: Cleanup
+# Step 12: Cleanup
 az group delete --name $rg_name --yes --no-wait

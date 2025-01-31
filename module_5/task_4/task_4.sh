@@ -16,6 +16,7 @@ keyvault_name="kv-${module_number}-${task_number}-${RANDOM}"
 secret_name="my-secret"
 secret_value="supersecretvalue"
 
+
 # Step 1: Login to Azure
 az account clear
 az config set core.enable_broker_on_windows=false

@@ -12,16 +12,20 @@ nginx_namespace="nginx-namespace"
 nginx_app="nginx" 
 nginx_service="nginx-service" 
 
+
 # Step 1: Login to Azure
 az account clear
 az config set core.enable_broker_on_windows=false
 az login
 
+
 # Step 2: Get principal id
 my_principal_id=$(az account show --query user.name --output tsv)
 
+
 # Step 3: Create Resource Group
 az group create --name $rg_name --location $location
+
 
 # Step 4: Create AKS Cluster
 az aks create \
@@ -41,6 +45,7 @@ az role assignment create \
   --role "Azure Kubernetes Service RBAC Cluster Admin" \
   --scope "${aks_id:1}"
 
+
 # Step 5: Connect to Cluster
 
 # Install kubectl
@@ -50,6 +55,7 @@ az role assignment create \
 
 az aks get-credentials --resource-group $rg_name --name $aks_name --overwrite-existing
 kubelogin convert-kubeconfig -l azurecli
+
 
 # Step 6: Deploy Nginx with CPU requests
 kubectl apply -f - <<EOF
@@ -101,6 +107,7 @@ spec:
   type: LoadBalancer
 EOF
 
+
 # Step 7: Verify Deployment
 while true; do
   external_ip=$(kubectl get service $nginx_service --namespace $nginx_namespace --output jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null)
@@ -115,7 +122,7 @@ echo "NGINX accessible at: http://$external_ip"
 curl -sI http://$external_ip
 
 
-# Step 9: Setup HPA
+# Step 8: Setup HPA
 kubectl autoscale deployment $nginx_app \
   --namespace $nginx_namespace \
   --cpu-percent=35 \
@@ -124,7 +131,8 @@ kubectl autoscale deployment $nginx_app \
 
 kubectl get hpa --namespace $nginx_namespace
 
-# Step 10: Load Simulation
+
+# Step 9: Load Simulation
 kubectl apply -f - <<EOF
 apiVersion: v1
 kind: Pod
@@ -155,9 +163,9 @@ kubectl get pods --namespace $nginx_namespace
 # kubectl describe pod --namespace $nginx_namespace load-generator
 
 
-# Step 11: Monitor Scaling
+# Step 10: Monitor Scaling
 kubectl get hpa --namespace $nginx_namespace --watch
 
 
-# Step 13: Clean resources
+# Step 11: Clean resources
 az group delete --name $rg_name --yes --no-wait

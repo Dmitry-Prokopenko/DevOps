@@ -13,13 +13,16 @@ aca_env_name="aca-${module_number}-${task_number}"
 aca_name="aca-env-${module_number}-${task_number}"
 docker_image="flask-app:latest"
 
+
 # Step 1: Login to Azure
 az account clear
 az config set core.enable_broker_on_windows=false
 az login
 
+
 # Step 2: Create Resource Group (if not exists)
 az group create --name $rg_name --location $location
+
 
 # Step 3: Create Azure Container Registry (Basic tier)
 az acr create \
@@ -27,6 +30,7 @@ az acr create \
   --name $acr_name \
   --sku Basic \
   --admin-enabled true
+
 
 # Step 4: Modify Flask App to Read Environment Variable and Create Dockerfile
 cat > "$(git rev-parse --show-toplevel)/app.py" << EOF

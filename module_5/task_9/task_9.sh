@@ -69,7 +69,7 @@ kubelogin convert-kubeconfig -l azurecli
 
 
 
-# Step 6: Create initial application files
+# Step 7: Create initial application files
 cat <<EOF > server.js
 const http = require('http');
 const server = http.createServer((req, res) => {
